@@ -10,7 +10,7 @@ class CollectionCard(Base):
 
     collection_id = Column(Integer, ForeignKey("collections.id"), nullable=False)
 
-    card_id = Column(Integer, ForeignKey("cards.id"))
+    card_id = Column(Integer, ForeignKey("cards.id"),nullable=False)
 
     quantity = Column(Integer, default=1, nullable=False)
 
