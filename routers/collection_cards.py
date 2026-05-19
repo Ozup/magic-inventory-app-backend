@@ -8,6 +8,8 @@ from models.collection_card import CollectionCard
 
 from schemas.collection_card import CollectionCardCreate
 
+from schemas.collection_card import CollectionCardCreate, CollectionCardResponse
+
 
 router = APIRouter(
     prefix="/collections",
@@ -81,3 +83,30 @@ def add_card_to_collection(
     db.refresh(new_collection_card)
 
     return new_collection_card
+
+@router.get(
+    "/{collection_id}/cards",
+    response_model=list[CollectionCardResponse]
+)
+def get_collection_cards(
+    collection_id: int,
+    db: Session = Depends(get_db)
+):
+
+    # Buscar colección
+    collection = db.query(Collection).filter(
+        Collection.id == collection_id
+    ).first()
+
+    if not collection:
+        raise HTTPException(
+            status_code=404,
+            detail="Collection not found"
+        )
+
+    # Buscar cartas de la colección
+    cards = db.query(CollectionCard).filter(
+        CollectionCard.collection_id == collection_id
+    ).all()
+
+    return cards
