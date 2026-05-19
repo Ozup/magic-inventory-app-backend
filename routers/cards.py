@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from database import SessionLocal
 
 from models.card import Card
+from schemas.card import CardResponse, CardSearchResponse
+
 
 
 router = APIRouter(
@@ -69,3 +71,35 @@ def sync_card(
     db.refresh(new_card)
 
     return new_card
+
+@router.get(
+    "/search/{query}",
+    response_model=list[CardSearchResponse]
+)
+def search_cards(query: str):
+
+    url = f"https://api.scryfall.com/cards/search?q={query}"
+
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        raise HTTPException(
+            status_code=404,
+            detail="No cards found"
+        )
+
+    data = response.json()
+
+    results = []
+
+    for card in data["data"][:10]:
+
+        results.append({
+            "name": card["name"],
+            "image_url": card.get(
+                "image_uris",
+                {}
+            ).get("normal")
+        })
+
+    return results

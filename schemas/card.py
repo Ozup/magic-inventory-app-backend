@@ -11,3 +11,7 @@ class CardResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class CardSearchResponse(BaseModel):
+    name: str
+    image_url: str | None = None
