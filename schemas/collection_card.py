@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from schemas.card import CardResponse
 
 class CollectionCardCreate(BaseModel):
     card_id: int
@@ -6,9 +7,8 @@ class CollectionCardCreate(BaseModel):
 
 class CollectionCardResponse(BaseModel):
     id: int
-    collection_id: int
-    card_id: int
     quantity: int
+    card: CardResponse
 
     class Config:
         from_attributes = True
