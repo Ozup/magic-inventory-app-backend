@@ -110,3 +110,32 @@ def get_collection_cards(
     ).all()
 
     return cards
+
+@router.delete("/{collection_id}/cards/{card_id}")
+def remove_card_from_collection(
+    collection_id: int,
+    card_id: int,
+    db: Session = Depends(get_db)
+):
+
+    # Buscar relación CollectionCard
+    collection_card = db.query(CollectionCard).filter(
+        CollectionCard.collection_id == collection_id,
+        CollectionCard.card_id == card_id
+    ).first()
+
+    # Verificar si existe
+    if not collection_card:
+        raise HTTPException(
+            status_code=404,
+            detail="Card not found in collection"
+        )
+
+    # Eliminar relación
+    db.delete(collection_card)
+
+    db.commit()
+
+    return {
+        "message": "Card removed from collection"
+    }
