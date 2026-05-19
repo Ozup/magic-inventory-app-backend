@@ -17,6 +17,14 @@ class Card(Base):
     mana_cost = Column(String, nullable=True)
     image_url = Column(String, nullable=True)
 
+    rarity = Column(String)
+
+    set_name = Column(String, nullable=True)
+
+    set_code = Column(String, nullable=True)
+
+    collector_number = Column(String, nullable=True)
+
     oracle_text = Column(String, nullable=True) # Para filtrar cartas por efectos, etc...
 
     collection_cards = relationship("CollectionCard", back_populates="card")

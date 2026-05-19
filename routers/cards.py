@@ -59,6 +59,11 @@ def sync_card(
         name=data["name"],
         type_line=data.get("type_line"),
         rarity=data.get("rarity"),
+
+        set_name=data.get("set_name"),
+        set_code=data.get("set"),
+        collector_number=data.get("collector_number"),
+
         mana_cost=data.get("mana_cost"),
         oracle_text=data.get("oracle_text"),
         image_url=data.get("image_uris", {}).get("normal")
@@ -103,3 +108,4 @@ def search_cards(query: str):
         })
 
     return results
+
