@@ -10,6 +10,8 @@ from schemas.collection_card import CollectionCardCreate
 
 from schemas.collection_card import CollectionCardCreate, CollectionCardResponse
 
+import requests
+
 
 router = APIRouter(
     prefix="/collections",
@@ -139,3 +141,93 @@ def remove_card_from_collection(
     return {
         "message": "Card removed from collection"
     }
+
+@router.post("/{collection_id}/cards/by-name/{card_name}")
+def add_card_to_collection_by_name(
+    collection_id: int,
+    card_name: str,
+    db: Session = Depends(get_db)
+):
+
+    # Buscar colección
+    collection = db.query(Collection).filter(
+        Collection.id == collection_id
+    ).first()
+
+    if not collection:
+        raise HTTPException(
+            status_code=404,
+            detail="Collection not found"
+        )
+
+    # Buscar carta en Scryfall
+    url = f"https://api.scryfall.com/cards/named?fuzzy={card_name}"
+
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        raise HTTPException(
+            status_code=404,
+            detail="Card not found in Scryfall"
+        )
+
+    data = response.json()
+
+    # Buscar carta localmente
+    card = db.query(Card).filter(
+        Card.scryfall_id == data["id"]
+    ).first()
+
+    # Si no existe, crear carta
+    if not card:
+
+        card = Card(
+            scryfall_id=data["id"],
+            name=data["name"],
+            type_line=data.get("type_line"),
+            rarity=data.get("rarity"),
+            mana_cost=data.get("mana_cost"),
+            oracle_text=data.get("oracle_text"),
+            image_url=data.get(
+                "image_uris",
+                {}
+            ).get("normal")
+        )
+
+        db.add(card)
+
+        db.commit()
+
+        db.refresh(card)
+
+    # Buscar relación existente
+    existing = db.query(CollectionCard).filter(
+        CollectionCard.collection_id == collection_id,
+        CollectionCard.card_id == card.id
+    ).first()
+
+    # Si ya existe, aumentar quantity
+    if existing:
+
+        existing.quantity += 1
+
+        db.commit()
+
+        db.refresh(existing)
+
+        return existing
+
+    # Crear nueva relación
+    new_collection_card = CollectionCard(
+        collection_id=collection_id,
+        card_id=card.id,
+        quantity=1
+    )
+
+    db.add(new_collection_card)
+
+    db.commit()
+
+    db.refresh(new_collection_card)
+
+    return new_collection_card
