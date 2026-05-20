@@ -16,6 +16,8 @@ class Collection(Base):
 
     type = Column(Enum(CollectionType), nullable=False)
 
-    created_at = Column(DateTime, default=datetime.utcnow) 
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    set_code = Column(String, nullable=True)
 
     cards = relationship("CollectionCard", back_populates="collection")

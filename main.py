@@ -8,12 +8,13 @@ from pydantic import BaseModel #FastAPI lee, valida y convierte con esto, sirve 
 
 from schemas.collection import CollectionCreate, CollectionResponse, CollectionUpdate
 
-from routers import collection_cards, cards
+from routers import collection_cards, cards, collections, sets
 
 
 app = FastAPI()
 
 Base.metadata.create_all(bind=engine)
+
 
 @app.get("/search/{card_name}")
 def search_card(card_name: str):
@@ -114,3 +115,5 @@ def update_collection(
 app.include_router(collection_cards.router)
 
 app.include_router(cards.router)
+
+app.include_router(sets.router)
