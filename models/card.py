@@ -27,5 +27,11 @@ class Card(Base):
 
     oracle_text = Column(String, nullable=True) # Para filtrar cartas por efectos, etc...
 
+    colors = Column(String, nullable=True)
+
+    color_identity = Column(String, nullable=True)
+
+    cmc = Column(Integer, nullable=True)
+
     collection_cards = relationship("CollectionCard", back_populates="card")
   

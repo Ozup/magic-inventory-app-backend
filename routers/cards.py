@@ -66,7 +66,21 @@ def sync_card(
 
         mana_cost=data.get("mana_cost"),
         oracle_text=data.get("oracle_text"),
-        image_url=data.get("image_uris", {}).get("normal")
+
+        colors=",".join(
+            data.get("colors", [])
+        ),
+
+        color_identity=",".join(
+            data.get("color_identity", [])
+        ),
+
+        cmc=int(data.get("cmc", 0)),
+
+        image_url=data.get(
+            "image_uris",
+            {}
+        ).get("normal")
     )
 
     db.add(new_card)

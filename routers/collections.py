@@ -160,27 +160,6 @@ def get_collection_progress(
         "completion_percentage": completion_percentage
     }
 
-def calculate_mana_value(mana_cost: str):
-
-    total = 0
-
-    symbols = mana_cost.replace("}", "").split("{")
-
-    for symbol in symbols:
-
-        if not symbol:
-            continue
-
-        # Si es número
-        if symbol.isdigit():
-            total += int(symbol)
-
-        # Si es símbolo de color
-        else:
-            total += 1
-
-    return total
-
 @router.get("/{collection_id}/deck-stats")
 def get_deck_stats(
     collection_id: int,
@@ -225,41 +204,66 @@ def get_deck_stats(
     # Curva de mana
     mana_curve = {}
 
+    # Distribución de colores
+    color_distribution = {}
+
     # Mana value total
     total_mana_value = 0
 
     for item in cards:
 
+        # =====================
+        # TYPES
+        # =====================
+
         type_line = item.card.type_line
 
         if type_line:
 
-            main_type = type_line.split("—")[0].strip()
+            main_type = type_line.split(
+                "—"
+            )[0].strip()
 
             if main_type not in types:
                 types[main_type] = 0
 
             types[main_type] += item.quantity
 
-        # Mana curve
-        mana_cost = item.card.mana_cost
+        # =====================
+        # MANA CURVE
+        # =====================
 
-        if mana_cost:
+        if item.card.cmc is not None:
 
-            mana_value = calculate_mana_value(
-                mana_cost
-            )
-
-            mana_value = str(mana_value)
+            mana_value = str(item.card.cmc)
 
             if mana_value not in mana_curve:
                 mana_curve[mana_value] = 0
 
-            mana_curve[mana_value] += item.quantity
+            mana_curve[mana_value] += (
+                item.quantity
+            )
 
             total_mana_value += (
-                int(mana_value) * item.quantity
+                item.card.cmc * item.quantity
             )
+
+        # =====================
+        # COLORS
+        # =====================
+
+        if item.card.colors:
+
+            colors = item.card.colors.split(",")
+
+            for color in colors:
+
+                if color not in color_distribution:
+                    color_distribution[color] = 0
+
+                color_distribution[color] += (
+                    item.quantity
+                )
 
     # Average mana value
     average_mana_value = 0
@@ -273,8 +277,16 @@ def get_deck_stats(
 
     return {
         "total_cards": total_cards,
+
         "unique_cards": unique_cards,
-        "average_mana_value": average_mana_value,
+
+        "average_mana_value":
+            average_mana_value,
+
         "types": types,
-        "mana_curve": mana_curve
+
+        "mana_curve": mana_curve,
+
+        "color_distribution":
+            color_distribution
     }

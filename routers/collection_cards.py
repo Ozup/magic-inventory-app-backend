@@ -184,13 +184,33 @@ def add_card_to_collection_by_name(
         card = Card(
             scryfall_id=data["id"],
             name=data["name"],
+
             type_line=data.get("type_line"),
+
             rarity=data.get("rarity"),
+
             mana_cost=data.get("mana_cost"),
+
             oracle_text=data.get("oracle_text"),
+
             set_name=data.get("set_name"),
+
             set_code=data.get("set"),
-            collector_number=data.get("collector_number"),
+
+            collector_number=data.get(
+                "collector_number"
+            ),
+
+            colors=",".join(
+                data.get("colors", [])
+            ),
+
+            color_identity=",".join(
+                data.get("color_identity", [])
+            ),
+
+            cmc=int(data.get("cmc", 0)),
+
             image_url=data.get(
                 "image_uris",
                 {}
