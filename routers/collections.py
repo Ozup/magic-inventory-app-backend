@@ -160,6 +160,27 @@ def get_collection_progress(
         "completion_percentage": completion_percentage
     }
 
+def calculate_mana_value(mana_cost: str):
+
+    total = 0
+
+    symbols = mana_cost.replace("}", "").split("{")
+
+    for symbol in symbols:
+
+        if not symbol:
+            continue
+
+        # Si es número
+        if symbol.isdigit():
+            total += int(symbol)
+
+        # Si es símbolo de color
+        else:
+            total += 1
+
+    return total
+
 @router.get("/{collection_id}/deck-stats")
 def get_deck_stats(
     collection_id: int,
@@ -204,6 +225,9 @@ def get_deck_stats(
     # Curva de mana
     mana_curve = {}
 
+    # Mana value total
+    total_mana_value = 0
+
     for item in cards:
 
         type_line = item.card.type_line
@@ -222,7 +246,9 @@ def get_deck_stats(
 
         if mana_cost:
 
-            mana_value = mana_cost.count("{")
+            mana_value = calculate_mana_value(
+                mana_cost
+            )
 
             mana_value = str(mana_value)
 
@@ -231,9 +257,24 @@ def get_deck_stats(
 
             mana_curve[mana_value] += item.quantity
 
+            total_mana_value += (
+                int(mana_value) * item.quantity
+            )
+
+    # Average mana value
+    average_mana_value = 0
+
+    if total_cards > 0:
+
+        average_mana_value = round(
+            total_mana_value / total_cards,
+            2
+        )
+
     return {
         "total_cards": total_cards,
         "unique_cards": unique_cards,
+        "average_mana_value": average_mana_value,
         "types": types,
         "mana_curve": mana_curve
     }
