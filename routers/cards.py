@@ -23,7 +23,6 @@ def get_db():
     finally:
         db.close()
 
-
 @router.post("/sync/{card_name}")
 def sync_card(
     card_name: str,
@@ -90,6 +89,54 @@ def sync_card(
     db.refresh(new_card)
 
     return new_card
+
+@router.post("/resync-all")
+def resync_all_cards(
+    db: Session = Depends(get_db)
+):
+
+    # Obtener todas las cartas
+    cards = db.query(Card).all()
+
+    updated = 0
+
+    for card in cards:
+
+        # Buscar carta en Scryfall
+        url = (
+            "https://api.scryfall.com/cards/"
+            f"{card.scryfall_id}"
+        )
+
+        response = requests.get(url)
+
+        # Si falla, continuar
+        if response.status_code != 200:
+            continue
+
+        data = response.json()
+
+        # Actualizar campos
+        card.colors = ",".join(
+            data.get("colors", [])
+        )
+
+        card.color_identity = ",".join(
+            data.get("color_identity", [])
+        )
+
+        card.cmc = int(
+            data.get("cmc", 0)
+        )
+
+        updated += 1
+
+    # Guardar cambios
+    db.commit()
+
+    return {
+        "updated_cards": updated
+    }
 
 @router.get(
     "/search/{query}",
