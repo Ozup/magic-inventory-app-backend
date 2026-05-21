@@ -201,22 +201,39 @@ def get_deck_stats(
     # Distribución de tipos
     types = {}
 
+    # Curva de mana
+    mana_curve = {}
+
     for item in cards:
 
         type_line = item.card.type_line
 
-        if not type_line:
-            continue
+        if type_line:
 
-        main_type = type_line.split("—")[0].strip()
+            main_type = type_line.split("—")[0].strip()
 
-        if main_type not in types:
-            types[main_type] = 0
+            if main_type not in types:
+                types[main_type] = 0
 
-        types[main_type] += item.quantity
+            types[main_type] += item.quantity
+
+        # Mana curve
+        mana_cost = item.card.mana_cost
+
+        if mana_cost:
+
+            mana_value = mana_cost.count("{")
+
+            mana_value = str(mana_value)
+
+            if mana_value not in mana_curve:
+                mana_curve[mana_value] = 0
+
+            mana_curve[mana_value] += item.quantity
 
     return {
         "total_cards": total_cards,
         "unique_cards": unique_cards,
-        "types": types
+        "types": types,
+        "mana_curve": mana_curve
     }
