@@ -363,9 +363,55 @@ def validate_deck(
                     f"{item.card.name} exceeds singleton limit"
                 )
 
+        # =========================
+        # COMMANDER COLOR IDENTITY
+        # =========================
+
+        commander = None
+
+        # Buscar commander
+        for item in cards:
+
+            if item.is_commander:
+                commander = item
+                break
+
+        # Validar que exista commander
+        if not commander:
+
+            errors.append(
+                "Commander deck must have a commander"
+            )
+
+        else:
+
+            # Colores permitidos
+            commander_colors = set(
+                commander.card.color_identity.split(",")
+            )
+
+            # Revisar todas las cartas
+            for item in cards:
+
+                if item.card.color_identity:
+
+                    card_colors = set(
+                        item.card.color_identity.split(",")
+                    )
+
+                    # Validar colores
+                    if not card_colors.issubset(
+                        commander_colors
+                    ):
+
+                        errors.append(
+                            f"{item.card.name} "
+                            "is outside commander's "
+                            "color identity"
+                        )
+
     # Resultado final
     return {
         "valid": len(errors) == 0,
         "errors": errors
     }
-
