@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, E
 from sqlalchemy.orm import relationship
 from database import Base
 from datetime import datetime
-from models.enums import CollectionType
+from models.enums import CollectionType, DeckFormat
 
 
 class Collection(Base):
@@ -15,6 +15,8 @@ class Collection(Base):
     description = Column(String, nullable=True)
 
     type = Column(Enum(CollectionType), nullable=False)
+
+    deck_format = Column(Enum(DeckFormat), nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
 

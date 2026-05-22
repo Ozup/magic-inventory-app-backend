@@ -35,7 +35,9 @@ def create_collection(
         name=data.name,
         description=data.description,
         type=data.type,
-        set_code=data.set_code
+        set_code=data.set_code,
+        deck_format=data.deck_format
+        
     )
 
     db.add(new_collection)

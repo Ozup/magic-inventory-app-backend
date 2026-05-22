@@ -13,3 +13,9 @@ class CollectionType(enum.Enum):
     DECK = "DECK"
     BINDER = "BINDER"
 ####################################
+
+class DeckFormat(enum.Enum):
+    COMMANDER = "COMMANDER"
+    STANDARD = "STANDARD"
+    MODERN = "MODERN"
+    PAUPER = "PAUPER"
