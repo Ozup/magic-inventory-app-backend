@@ -12,6 +12,9 @@ import requests
 from models.collection_card import CollectionCard
 from models.card import Card
 
+from models.enums import CollectionType, DeckFormat
+
+
 
 router = APIRouter(
     prefix="/collections",
@@ -291,4 +294,77 @@ def get_deck_stats(
 
         "color_distribution":
             color_distribution
+    }
+
+@router.get("/{collection_id}/deck-validation")
+def validate_deck(
+    collection_id: int,
+    db: Session = Depends(get_db)
+):
+
+    # Buscar colección
+    collection = db.query(Collection).filter(
+        Collection.id == collection_id
+    ).first()
+
+    if not collection:
+        raise HTTPException(
+            status_code=404,
+            detail="Collection not found"
+        )
+
+    # Verificar que sea deck
+    if collection.type != CollectionType.DECK:
+        raise HTTPException(
+            status_code=400,
+            detail="Validation only available for decks"
+        )
+
+    # Verificar formato
+    if not collection.deck_format:
+        raise HTTPException(
+            status_code=400,
+            detail="Deck format not defined"
+        )
+
+    # Obtener cartas
+    cards = db.query(CollectionCard).join(Card).filter(
+        CollectionCard.collection_id == collection_id
+    ).all()
+
+    # Lista de errores
+    errors = []
+
+    # =========================
+    # COMMANDER VALIDATION
+    # =========================
+
+    if collection.deck_format == DeckFormat.COMMANDER:
+
+        # Total de cartas
+        total_cards = 0
+
+        for item in cards:
+            total_cards += item.quantity
+
+        # Debe tener exactamente 100 cartas
+        if total_cards != 100:
+
+            errors.append(
+                "Commander decks must contain exactly 100 cards"
+            )
+
+        # Singleton rule
+        for item in cards:
+
+            if item.quantity > 1:
+
+                errors.append(
+                    f"{item.card.name} exceeds singleton limit"
+                )
+
+    # Resultado final
+    return {
+        "valid": len(errors) == 0,
+        "errors": errors
     }
