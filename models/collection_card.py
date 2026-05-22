@@ -14,9 +14,12 @@ class CollectionCard(Base):
 
     quantity = Column(Integer, default=1, nullable=False)
 
+    is_commander = Column(Boolean, default=False)
+
     collection = relationship("Collection", back_populates="cards")
 
     card = relationship("Card", back_populates="collection_cards")
+
 
     # Evitar duplicados de cartas
     __table_args__ = (  

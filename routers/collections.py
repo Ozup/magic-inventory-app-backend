@@ -368,3 +368,4 @@ def validate_deck(
         "valid": len(errors) == 0,
         "errors": errors
     }
+

@@ -75,7 +75,8 @@ def add_card_to_collection(
     new_collection_card = CollectionCard(
         collection_id=collection_id,
         card_id=data.card_id,
-        quantity=data.quantity
+        quantity=data.quantity,
+        is_commander=data.is_commander
     )
 
     db.add(new_collection_card)
@@ -244,7 +245,8 @@ def add_card_to_collection_by_name(
     new_collection_card = CollectionCard(
         collection_id=collection_id,
         card_id=card.id,
-        quantity=1
+        quantity=1,
+        is_commander=False
     )
 
     db.add(new_collection_card)
