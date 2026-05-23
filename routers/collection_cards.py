@@ -96,6 +96,10 @@ def get_collection_cards(
     color: str | None = None,
     type: str | None = None,
     rarity: str | None = None,
+
+    limit: int = 20,
+    offset: int = 0,
+
     db: Session = Depends(get_db)
 ):
 
@@ -136,8 +140,8 @@ def get_collection_cards(
             Card.rarity == rarity
         )
 
-    # Obtener resultados
-    cards = query.all()
+    # Pagination
+    cards = query.offset(offset).limit(limit).all()
 
     return cards
 
