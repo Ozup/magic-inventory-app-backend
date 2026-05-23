@@ -100,6 +100,8 @@ def get_collection_cards(
     limit: int = 20,
     offset: int = 0,
 
+    sort_by: str | None = None,
+
     db: Session = Depends(get_db)
 ):
 
@@ -139,6 +141,19 @@ def get_collection_cards(
         query = query.filter(
             Card.rarity == rarity
         )
+
+    # Sorting
+    if sort_by == "name":
+
+        query = query.order_by(Card.name)
+
+    elif sort_by == "cmc":
+
+        query = query.order_by(Card.cmc)
+
+    elif sort_by == "rarity":
+
+        query = query.order_by(Card.rarity)
 
     # Pagination
     cards = query.offset(offset).limit(limit).all()
