@@ -93,6 +93,9 @@ def add_card_to_collection(
 )
 def get_collection_cards(
     collection_id: int,
+    color: str | None = None,
+    type: str | None = None,
+    rarity: str | None = None,
     db: Session = Depends(get_db)
 ):
 
@@ -107,10 +110,34 @@ def get_collection_cards(
             detail="Collection not found"
         )
 
-    # Buscar cartas de la colección
-    cards = db.query(CollectionCard).filter(
+    # Query base
+    query = db.query(CollectionCard).join(Card).filter(
         CollectionCard.collection_id == collection_id
-    ).all()
+    )
+
+    # Filtrar por color
+    if color:
+
+        query = query.filter(
+            Card.color_identity.contains(color)
+        )
+
+    # Filtrar por tipo
+    if type:
+
+        query = query.filter(
+            Card.type_line.contains(type)
+        )
+
+    # Filtrar por rareza
+    if rarity:
+
+        query = query.filter(
+            Card.rarity == rarity
+        )
+
+    # Obtener resultados
+    cards = query.all()
 
     return cards
 
@@ -256,3 +283,5 @@ def add_card_to_collection_by_name(
     db.refresh(new_collection_card)
 
     return new_collection_card
+
+

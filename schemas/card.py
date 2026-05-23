@@ -12,6 +12,8 @@ class CardResponse(BaseModel):
 
     rarity: str | None = None
 
+    type_line: str | None = None
+
     set_name: str | None = None
 
     set_code: str | None = None
