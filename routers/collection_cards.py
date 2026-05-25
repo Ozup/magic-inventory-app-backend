@@ -139,7 +139,7 @@ def get_collection_cards(
     if rarity:
 
         query = query.filter(
-            Card.rarity == rarity
+            Card.rarity.ilike(f"%{rarity}%")
         )
 
     # Sorting
