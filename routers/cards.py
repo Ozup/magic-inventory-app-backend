@@ -8,6 +8,8 @@ from database import SessionLocal
 from models.card import Card
 from schemas.card import CardResponse, CardSearchResponse
 
+import requests
+
 
 
 router = APIRouter(
@@ -170,3 +172,18 @@ def search_cards(query: str):
 
     return results
 
+@router.get("/autocomplete")
+def autocomplete_cards(
+    query: str
+):
+
+    response = requests.get(
+        "https://api.scryfall.com/cards/autocomplete",
+        params={
+            "q": query
+        }
+    )
+
+    data = response.json()
+
+    return data.get("data", [])
