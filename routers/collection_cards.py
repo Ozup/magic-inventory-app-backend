@@ -96,6 +96,7 @@ def get_collection_cards(
     color: str | None = None,
     type: str | None = None,
     rarity: str | None = None,
+    name: str | None = None,
 
     limit: int = 20,
     offset: int = 0,
@@ -140,6 +141,13 @@ def get_collection_cards(
 
         query = query.filter(
             Card.rarity.ilike(f"%{rarity}%")
+        )
+
+    # Filtrar por nombre
+    if name:
+
+        query = query.filter(
+            Card.name.ilike(f"%{name}%")
         )
 
     # Sorting
