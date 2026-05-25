@@ -311,4 +311,42 @@ def add_card_to_collection_by_name(
 
     return new_collection_card
 
+@router.patch(
+    "/{collection_id}/cards/{card_id}/quantity"
+)
+def update_card_quantity(
+    collection_id: int,
+    card_id: int,
+    quantity: int,
+    db: Session = Depends(get_db)
+):
 
+    collection_card = db.query(CollectionCard).filter(
+        CollectionCard.collection_id == collection_id,
+        CollectionCard.card_id == card_id
+    ).first()
+
+    if not collection_card:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Card not found in collection"
+        )
+
+    if quantity <= 0:
+
+        db.delete(collection_card)
+
+        db.commit()
+
+        return {
+            "message": "Card removed from collection"
+        }
+
+    collection_card.quantity = quantity
+
+    db.commit()
+
+    db.refresh(collection_card)
+
+    return collection_card
