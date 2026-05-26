@@ -197,7 +197,7 @@ def remove_card_from_collection(
         "message": "Card removed from collection"
     }
 
-@router.post("/{collection_id}/cards/by-name/{card_name}")
+@router.post("/{collection_id}/cards/by-name")
 def add_card_to_collection_by_name(
     collection_id: int,
     card_name: str,
@@ -228,6 +228,29 @@ def add_card_to_collection_by_name(
 
     data = response.json()
 
+    image_url = (
+
+        data.get(
+            "image_uris",
+            {}
+        ).get(
+            "normal"
+        )
+
+        or
+
+        data.get(
+            "card_faces",
+            [{}]
+        )[0].get(
+            "image_uris",
+            {}
+        ).get(
+            "normal",
+            ""
+        )
+    )
+
     # Buscar carta localmente
     card = db.query(Card).filter(
         Card.scryfall_id == data["id"]
@@ -238,6 +261,7 @@ def add_card_to_collection_by_name(
 
         card = Card(
             scryfall_id=data["id"],
+
             name=data["name"],
 
             type_line=data.get("type_line"),
@@ -266,10 +290,7 @@ def add_card_to_collection_by_name(
 
             cmc=int(data.get("cmc", 0)),
 
-            image_url=data.get(
-                "image_uris",
-                {}
-            ).get("normal")
+            image_url=image_url
         )
 
         db.add(card)
