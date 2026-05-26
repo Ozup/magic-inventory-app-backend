@@ -371,3 +371,160 @@ def update_card_quantity(
     db.refresh(collection_card)
 
     return collection_card
+
+
+@router.post(
+    "/{collection_id}/cards/by-scryfall-id/{scryfall_id}"
+)
+def add_card_to_collection_by_scryfall_id(
+    collection_id: int,
+    scryfall_id: str,
+    db: Session = Depends(get_db)
+):
+
+    collection = db.query(Collection).filter(
+        Collection.id == collection_id
+    ).first()
+
+    if not collection:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Collection not found"
+        )
+
+    response = requests.get(
+        f"https://api.scryfall.com/cards/{scryfall_id}"
+    )
+
+    if response.status_code != 200:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Card not found"
+        )
+
+    data = response.json()
+
+    image_url = (
+
+        data.get(
+            "image_uris",
+            {}
+        ).get(
+            "normal"
+        )
+
+        or
+
+        data.get(
+            "card_faces",
+            [{}]
+        )[0].get(
+            "image_uris",
+            {}
+        ).get(
+            "normal",
+            ""
+        )
+    )
+
+    card = db.query(Card).filter(
+        Card.scryfall_id == data["id"]
+    ).first()
+
+    if not card:
+
+        card = Card(
+
+            scryfall_id=data["id"],
+
+            name=data["name"],
+
+            type_line=data.get(
+                "type_line"
+            ),
+
+            rarity=data.get(
+                "rarity"
+            ),
+
+            mana_cost=data.get(
+                "mana_cost"
+            ),
+
+            oracle_text=data.get(
+                "oracle_text"
+            ),
+
+            set_name=data.get(
+                "set_name"
+            ),
+
+            set_code=data.get(
+                "set"
+            ),
+
+            collector_number=data.get(
+                "collector_number"
+            ),
+
+            colors=",".join(
+                data.get(
+                    "colors",
+                    []
+                )
+            ),
+
+            color_identity=",".join(
+                data.get(
+                    "color_identity",
+                    []
+                )
+            ),
+
+            cmc=int(
+                data.get(
+                    "cmc",
+                    0
+                )
+            ),
+
+            image_url=image_url
+        )
+
+        db.add(card)
+
+        db.commit()
+
+        db.refresh(card)
+
+    existing = db.query(CollectionCard).filter(
+        CollectionCard.collection_id == collection_id,
+        CollectionCard.card_id == card.id
+    ).first()
+
+    if existing:
+
+        existing.quantity += 1
+
+        db.commit()
+
+        db.refresh(existing)
+
+        return existing
+
+    new_collection_card = CollectionCard(
+        collection_id=collection_id,
+        card_id=card.id,
+        quantity=1,
+        is_commander=False
+    )
+
+    db.add(new_collection_card)
+
+    db.commit()
+
+    db.refresh(new_collection_card)
+
+    return new_collection_card

@@ -180,13 +180,14 @@ def autocomplete_cards(
     response = requests.get(
         "https://api.scryfall.com/cards/search",
         params={
-            "q": query
+            "q": query,
+            "unique": "prints"
         }
     )
 
     data = response.json()
 
-    cards = data.get("data", [])[:10]
+    cards = data.get("data", [])[:15]
 
     return [
 
@@ -194,6 +195,21 @@ def autocomplete_cards(
             "name": card["name"],
 
             "set_name": card["set_name"],
+
+            "set_code": card.get(
+                "set",
+                ""
+            ).upper(),
+
+            "collector_number": card.get(
+                "collector_number",
+                ""
+            ),
+
+            "rarity": card.get(
+                "rarity",
+                ""
+            ),
 
             "image_url":
 
