@@ -1,8 +1,14 @@
-# Magic Inventory App
+# Magic Inventory App Backend
 
-Backend API for managing Magic: The Gathering collections and decks.
+Backend API for a Magic: The Gathering inventory management application.
 
 Built with Python, FastAPI, PostgreSQL, SQLAlchemy, and Alembic.
+
+---
+
+## Frontend Repository
+
+https://github.com/TU-USUARIO/magic-inventory-app-frontend
 
 ---
 
@@ -13,6 +19,7 @@ Built with Python, FastAPI, PostgreSQL, SQLAlchemy, and Alembic.
 - PostgreSQL
 - SQLAlchemy
 - Alembic
+- Scryfall API
 
 ---
 
@@ -20,17 +27,26 @@ Built with Python, FastAPI, PostgreSQL, SQLAlchemy, and Alembic.
 
 - Create collections
 - Update collections
+- Delete collections
+- Add cards by name
+- Remove cards from collections
+- Quantity controls
+- Card filtering
+- Card sorting
+- Card search
+- Card autocomplete search
 - Collection-card relationships
 - PostgreSQL persistence
 - Alembic migrations
 - REST API structure
+- Scryfall integration
+- Deck validation
 
 ---
 
 ## Project Structure
 
-```text
-magic-inventory-app/
+magic-inventory-app-backend/
 │
 ├── alembic/
 ├── models/
@@ -41,7 +57,6 @@ magic-inventory-app/
 ├── requirements.txt
 ├── alembic.ini
 └── README.md
-```
 
 ---
 
@@ -49,18 +64,14 @@ magic-inventory-app/
 
 ### 1. Clone the repository
 
-```bash
 git clone <your-repository-url>
-cd magic-inventory-app
-```
+cd magic-inventory-app-backend
 
 ---
 
 ### 2. Create virtual environment
 
-```bash
 python -m venv venv
-```
 
 ---
 
@@ -68,23 +79,17 @@ python -m venv venv
 
 Windows:
 
-```bash
 venv\Scripts\activate
-```
 
 Mac/Linux:
 
-```bash
 source venv/bin/activate
-```
 
 ---
 
 ### 4. Install dependencies
 
-```bash
 pip install -r requirements.txt
-```
 
 ---
 
@@ -96,9 +101,7 @@ Configure your database URL inside your environment variables or `database.py`.
 
 Example:
 
-```python
 DATABASE_URL = "postgresql://postgres:password@localhost:5432/postgres"
-```
 
 ---
 
@@ -106,47 +109,35 @@ DATABASE_URL = "postgresql://postgres:password@localhost:5432/postgres"
 
 Generate migration:
 
-```bash
 python -m alembic revision --autogenerate -m "migration message"
-```
 
 Apply migrations:
 
-```bash
 python -m alembic upgrade head
-```
 
 ---
 
 ## Run the Server
 
-```bash
 uvicorn main:app --reload
-```
 
 Server will run at:
 
-```text
 http://127.0.0.1:8000
-```
 
 ---
 
 ## API Documentation
 
-FastAPI automatically generates documentation:
+FastAPI automatically generates documentation.
 
 ### Swagger UI
 
-```text
 http://127.0.0.1:8000/docs
-```
 
 ### ReDoc
 
-```text
 http://127.0.0.1:8000/redoc
-```
 
 ---
 
@@ -171,19 +162,40 @@ Supports:
 
 ---
 
+## Architecture
+
+### Backend
+
+- FastAPI
+- PostgreSQL
+- SQLAlchemy
+
+### Frontend
+
+- React
+- TypeScript
+- Axios
+- React Router
+
+### External Services
+
+- Scryfall API
+
+---
+
 ## Roadmap
 
-- Add cards to collections
-- Deck statistics
-- Card search
+- Print-specific card versions
+- Deck analytics dashboard
 - Authentication system
-- Import/export decks
 - User accounts
-- Favorites system
+- Collection completion tracking
+- Mobile responsive UI
+- Import/export deck lists
 
 ---
 
 ## Author
 
-Samuel Giraldo
+Samuel Giraldo  
 Astronomer | Python Developer
