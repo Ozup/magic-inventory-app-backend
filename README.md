@@ -46,6 +46,7 @@ https://github.com/TU-USUARIO/magic-inventory-app-frontend
 
 ## Project Structure
 
+```text
 magic-inventory-app-backend/
 │
 ├── alembic/
@@ -57,6 +58,7 @@ magic-inventory-app-backend/
 ├── requirements.txt
 ├── alembic.ini
 └── README.md
+```
 
 ---
 
