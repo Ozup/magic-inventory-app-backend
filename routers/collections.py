@@ -244,7 +244,7 @@ def get_collections(
 
     return collections
 
-@router.get("/{collection_id}", response_model=CollectionResponse)
+@router.get("/{collection_id}")
 def get_collection(
     collection_id: int,
     db: Session = Depends(get_db)
@@ -255,12 +255,88 @@ def get_collection(
     ).first()
 
     if not collection:
+
         raise HTTPException(
             status_code=404,
             detail="Collection not found"
         )
 
-    return collection
+    # =========================
+    # COLLECTION STATS
+    # =========================
+
+    collection_cards = (
+        db.query(CollectionCard)
+        .filter(
+            CollectionCard.collection_id
+            == collection_id
+        )
+        .all()
+    )
+
+    total_cards = len(collection_cards)
+
+    owned_cards = len([
+        card
+        for card in collection_cards
+        if card.quantity > 0
+    ])
+
+    duplicates = sum([
+        card.quantity - 1
+        for card in collection_cards
+        if card.quantity > 1
+    ])
+
+    completion_percentage = 0
+
+    if total_cards > 0:
+
+        completion_percentage = round(
+            (
+                owned_cards /
+                total_cards
+            ) * 100,
+            1
+        )
+
+    return {
+
+        "id": collection.id,
+
+        "name": collection.name,
+
+        "description":
+            collection.description,
+
+        "type":
+            collection.type,
+
+        "deck_format":
+            collection.deck_format,
+
+        "created_at":
+            collection.created_at,
+
+        "set_code":
+            collection.set_code,
+
+        # =========================
+        # STATS
+        # =========================
+
+        "total_cards":
+            total_cards,
+
+        "owned_cards":
+            owned_cards,
+
+        "duplicates":
+            duplicates,
+
+        "completion_percentage":
+            completion_percentage
+    }
 
 @router.delete("/{collection_id}")
 def delete_collection(
