@@ -63,9 +63,12 @@ def create_collection(
             f"cards/search?q=set:{new_collection.set_code}"
         )
 
-        response = requests.get(url)
+        while url:
 
-        if response.status_code == 200:
+            response = requests.get(url)
+
+            if response.status_code != 200:
+                break
 
             data = response.json()
 
@@ -214,6 +217,20 @@ def create_collection(
                     db.add(relation)
 
             db.commit()
+
+            # =========================
+            # NEXT PAGE
+            # =========================
+
+            if data.get("has_more"):
+
+                url = data.get(
+                    "next_page"
+                )
+
+            else:
+
+                url = None
 
     return new_collection
 
