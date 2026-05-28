@@ -98,7 +98,7 @@ def get_collection_cards(
     rarity: str | None = None,
     name: str | None = None,
 
-    limit: int = 20,
+    limit: int | None = None,
     offset: int = 0,
 
     sort_by: str | None = None,
@@ -164,7 +164,18 @@ def get_collection_cards(
         query = query.order_by(Card.rarity)
 
     # Pagination
-    cards = query.offset(offset).limit(limit).all()
+    if limit:
+
+        cards = (
+            query
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
+
+    else:
+
+        cards = query.all()
 
     return cards
 

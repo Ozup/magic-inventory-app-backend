@@ -15,7 +15,6 @@ from models.card import Card
 from models.enums import CollectionType, DeckFormat
 
 
-
 router = APIRouter(
     prefix="/collections",
     tags=["Collections"]
@@ -40,7 +39,6 @@ def create_collection(
         type=data.type,
         set_code=data.set_code,
         deck_format=data.deck_format
-        
     )
 
     db.add(new_collection)
@@ -48,6 +46,174 @@ def create_collection(
     db.commit()
 
     db.refresh(new_collection)
+
+    # =========================
+    # AUTO IMPORT ALBUM CARDS
+    # =========================
+
+    if (
+        new_collection.type ==
+        CollectionType.ALBUM
+        and
+        new_collection.set_code
+    ):
+
+        url = (
+            "https://api.scryfall.com/"
+            f"cards/search?q=set:{new_collection.set_code}"
+        )
+
+        response = requests.get(url)
+
+        if response.status_code == 200:
+
+            data = response.json()
+
+            cards_data = data.get(
+                "data",
+                []
+            )
+
+            for card_data in cards_data:
+
+                # Buscar carta existente
+                existing_card = db.query(Card).filter(
+                    Card.scryfall_id ==
+                    card_data["id"]
+                ).first()
+
+                # Obtener imagen
+                image_url = (
+
+                    card_data.get(
+                        "image_uris",
+                        {}
+                    ).get(
+                        "normal"
+                    )
+
+                    or
+
+                    card_data.get(
+                        "card_faces",
+                        [{}]
+                    )[0].get(
+                        "image_uris",
+                        {}
+                    ).get(
+                        "normal",
+                        ""
+                    )
+                )
+
+                # Crear carta si no existe
+                if not existing_card:
+
+                    existing_card = Card(
+
+                        scryfall_id=
+                            card_data["id"],
+
+                        name=
+                            card_data["name"],
+
+                        type_line=
+                            card_data.get(
+                                "type_line"
+                            ),
+
+                        rarity=
+                            card_data.get(
+                                "rarity"
+                            ),
+
+                        mana_cost=
+                            card_data.get(
+                                "mana_cost"
+                            ),
+
+                        oracle_text=
+                            card_data.get(
+                                "oracle_text"
+                            ),
+
+                        set_name=
+                            card_data.get(
+                                "set_name"
+                            ),
+
+                        set_code=
+                            card_data.get(
+                                "set"
+                            ),
+
+                        collector_number=
+                            card_data.get(
+                                "collector_number"
+                            ),
+
+                        colors=",".join(
+                            card_data.get(
+                                "colors",
+                                []
+                            )
+                        ),
+
+                        color_identity=",".join(
+                            card_data.get(
+                                "color_identity",
+                                []
+                            )
+                        ),
+
+                        cmc=int(
+                            card_data.get(
+                                "cmc",
+                                0
+                            )
+                        ),
+
+                        image_url=image_url
+                    )
+
+                    db.add(existing_card)
+
+                    db.commit()
+
+                    db.refresh(existing_card)
+
+                # Verificar relación existente
+                existing_relation = (
+                    db.query(CollectionCard)
+                    .filter(
+                        CollectionCard.collection_id
+                        == new_collection.id,
+
+                        CollectionCard.card_id
+                        == existing_card.id
+                    )
+                    .first()
+                )
+
+                # Crear relación
+                if not existing_relation:
+
+                    relation = CollectionCard(
+
+                        collection_id=
+                            new_collection.id,
+
+                        card_id=
+                            existing_card.id,
+
+                        quantity=0,
+
+                        is_commander=False
+                    )
+
+                    db.add(relation)
+
+            db.commit()
 
     return new_collection
 
