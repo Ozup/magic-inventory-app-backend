@@ -365,15 +365,12 @@ def update_card_quantity(
             detail="Card not found in collection"
         )
 
-    if quantity <= 0:
+    if quantity < 0:
 
-        db.delete(collection_card)
-
-        db.commit()
-
-        return {
-            "message": "Card removed from collection"
-        }
+        raise HTTPException(
+            status_code=400,
+            detail="Quantity cannot be negative"
+        )
 
     collection_card.quantity = quantity
 
