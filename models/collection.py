@@ -22,4 +22,8 @@ class Collection(Base):
 
     set_code = Column(String, nullable=True)
 
-    cards = relationship("CollectionCard", back_populates="collection")
+    cards = relationship(
+        "CollectionCard",
+        back_populates="collection",
+        cascade="all, delete"
+    )

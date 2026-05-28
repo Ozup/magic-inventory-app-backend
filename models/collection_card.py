@@ -8,7 +8,16 @@ class CollectionCard(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    collection_id = Column(Integer, ForeignKey("collections.id"), nullable=False)
+    collection_id = Column(
+        Integer,
+
+        ForeignKey(
+            "collections.id",
+            ondelete="CASCADE"
+        ),
+
+        nullable=False
+    )
 
     card_id = Column(Integer, ForeignKey("cards.id"),nullable=False)
 

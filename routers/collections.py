@@ -15,6 +15,7 @@ from models.card import Card
 from models.enums import CollectionType, DeckFormat
 
 
+
 router = APIRouter(
     prefix="/collections",
     tags=["Collections"]
@@ -272,17 +273,32 @@ def delete_collection(
     ).first()
 
     if not collection:
+
         raise HTTPException(
             status_code=404,
             detail="Collection not found"
         )
+
+    # =========================
+    # DELETE RELATIONS
+    # =========================
+
+    db.query(CollectionCard).filter(
+        CollectionCard.collection_id
+        == collection_id
+    ).delete()
+
+    # =========================
+    # DELETE COLLECTION
+    # =========================
 
     db.delete(collection)
 
     db.commit()
 
     return {
-        "message": "Collection deleted"
+        "message":
+        "Collection deleted"
     }
 
 @router.get("/{collection_id}/progress")
