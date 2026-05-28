@@ -62,8 +62,8 @@ def create_collection(
         url = (
             "https://api.scryfall.com/"
             f"cards/search?q=set:{new_collection.set_code}"
-        )
-
+            "&unique=prints"
+)
         while url:
 
             response = requests.get(url)
