@@ -45,6 +45,10 @@ def sync_card(
 
     data = response.json()
 
+    print("CARD:", data["name"])
+    print("SET:", data.get("set"))
+    print("PRICES:", data.get("prices"))
+
     # Buscar si ya existe en PostgreSQL
     existing_card = db.query(Card).filter(
         Card.scryfall_id == data["id"]
@@ -77,6 +81,12 @@ def sync_card(
         ),
 
         cmc=int(data.get("cmc", 0)),
+
+        usd_price=float(
+            data["prices"]["usd"]
+        )
+        if data.get("prices", {}).get("usd")
+        else None,
 
         image_url=data.get(
             "image_uris",
@@ -129,6 +139,14 @@ def resync_all_cards(
 
         card.cmc = int(
             data.get("cmc", 0)
+        )
+
+        card.usd_price = (
+            float(
+                data["prices"]["usd"]
+            )
+            if data.get("prices", {}).get("usd")
+            else None
         )
 
         updated += 1

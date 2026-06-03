@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, E
 from sqlalchemy.orm import relationship
 from database import Base
 from datetime import datetime
+from sqlalchemy import Float
 
 class Card(Base):
     __tablename__ = "cards"
@@ -32,6 +33,7 @@ class Card(Base):
     color_identity = Column(String, nullable=True)
 
     cmc = Column(Integer, nullable=True)
+    usd_price = Column(Float, nullable=True)
 
     collection_cards = relationship("CollectionCard", back_populates="card")
   

@@ -25,6 +25,8 @@ class CardResponse(BaseModel):
     color_identity: str | None = None
 
     cmc: int | None = None
+    
+    usd_price: float | None = None
 
     class Config:
         from_attributes = True
