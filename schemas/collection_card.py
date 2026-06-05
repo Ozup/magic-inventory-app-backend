@@ -11,6 +11,7 @@ class CollectionCardResponse(BaseModel):
     quantity: int
     card: CardResponse
     is_commander: bool = False
+    foil_quantity: int = 0
 
     class Config:
         from_attributes = True
