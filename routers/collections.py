@@ -244,7 +244,7 @@ def get_collections(
 
     return collections
 
-@router.get("/{collection_id}")
+@router.get("/{collection_id}") ## Aquí calculo los porcentajes del Álbum
 def get_collection(
     collection_id: int,
     db: Session = Depends(get_db)
@@ -279,13 +279,23 @@ def get_collection(
     owned_cards = len([
         card
         for card in collection_cards
-        if card.quantity > 0
+        if (
+            card.quantity > 0
+            or
+            card.foil_quantity > 0
+        )
     ])
 
     duplicates = sum([
-        card.quantity - 1
+        (
+            card.quantity +
+            card.foil_quantity
+        ) - 1
         for card in collection_cards
-        if card.quantity > 1
+        if (
+            card.quantity +
+            card.foil_quantity
+        ) > 1
     ])
 
     completion_percentage = 0

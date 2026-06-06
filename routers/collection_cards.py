@@ -350,6 +350,7 @@ def update_card_quantity(
     collection_id: int,
     card_id: int,
     quantity: int,
+    foil_quantity: int = 0,
     db: Session = Depends(get_db)
 ):
 
@@ -371,8 +372,17 @@ def update_card_quantity(
             status_code=400,
             detail="Quantity cannot be negative"
         )
+    
+    if foil_quantity < 0:
+
+        raise HTTPException(
+            status_code=400,
+            detail="Foil quantity cannot be negative"
+        )
 
     collection_card.quantity = quantity
+
+    collection_card.foil_quantity = foil_quantity
 
     db.commit()
 
