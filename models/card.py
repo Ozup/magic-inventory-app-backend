@@ -34,6 +34,7 @@ class Card(Base):
 
     cmc = Column(Integer, nullable=True)
     usd_price = Column(Float, nullable=True)
+    usd_foil_price = Column(Float, nullable=True)
 
     collection_cards = relationship("CollectionCard", back_populates="card")
   

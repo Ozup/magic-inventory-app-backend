@@ -34,7 +34,14 @@ def sync_card(
     # Buscar carta en Scryfall
     url = f"https://api.scryfall.com/cards/named?fuzzy={card_name}"
 
-    response = requests.get(url)
+    headers = {
+        "User-Agent": "MagicInventoryApp/1.0"
+    }
+
+    response = requests.get(
+        url,
+        headers=headers
+    )
 
     # Verificar si Scryfall encontró la carta
     if response.status_code != 200:
@@ -88,6 +95,12 @@ def sync_card(
         if data.get("prices", {}).get("usd")
         else None,
 
+        usd_foil_price=float(
+            data["prices"]["usd_foil"]
+        )
+        if data.get("prices", {}).get("usd_foil")
+        else None,
+
         image_url=data.get(
             "image_uris",
             {}
@@ -113,19 +126,34 @@ def resync_all_cards(
     updated = 0
 
     for card in cards:
-
         # Buscar carta en Scryfall
         url = (
             "https://api.scryfall.com/cards/"
             f"{card.scryfall_id}"
         )
+        print("URL:", url)
+        headers = {
+            "User-Agent":
+            "MagicInventoryApp/1.0"
+        }
 
-        response = requests.get(url)
-
+        response = requests.get(
+            url,
+            headers=headers
+        )
         # Si falla, continuar
         if response.status_code != 200:
-            continue
 
+            print(
+                "ERROR",
+                response.status_code
+            )
+
+            print(
+                response.text
+            )
+
+            continue
         data = response.json()
 
         # Actualizar campos
@@ -149,6 +177,15 @@ def resync_all_cards(
             else None
         )
 
+        card.usd_foil_price = (
+            float(
+                data["prices"]["usd_foil"]
+            )
+            if data.get("prices", {}).get("usd_foil")
+            else None
+        )
+     
+
         updated += 1
 
     # Guardar cambios
@@ -166,7 +203,14 @@ def search_cards(query: str):
 
     url = f"https://api.scryfall.com/cards/search?q={query}"
 
-    response = requests.get(url)
+    headers = {
+        "User-Agent": "MagicInventoryApp/1.0"
+    }
+
+    response = requests.get(
+        url,
+        headers=headers
+    )
 
     if response.status_code != 200:
         raise HTTPException(
@@ -195,12 +239,16 @@ def autocomplete_cards(
     query: str
 ):
 
+    SCRYFALL_HEADERS = {
+    "User-Agent": "MagicInventoryApp/1.0"
+    }
     response = requests.get(
-        "https://api.scryfall.com/cards/search",
-        params={
-            "q": query,
-            "unique": "prints"
-        }
+    "https://api.scryfall.com/cards/search",
+    headers=SCRYFALL_HEADERS,
+    params={
+        "q": query,
+        "unique": "prints"
+    }
     )
 
     data = response.json()

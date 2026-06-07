@@ -17,7 +17,14 @@ def search_sets(
 
     url = "https://api.scryfall.com/sets"
 
-    response = requests.get(url)
+    headers = {
+        "User-Agent": "MagicInventoryApp/1.0"
+    }
+
+    response = requests.get(
+        url,
+        headers=headers
+    )
 
     if response.status_code != 200:
         raise HTTPException(

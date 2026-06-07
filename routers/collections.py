@@ -66,7 +66,14 @@ def create_collection(
 )
         while url:
 
-            response = requests.get(url)
+            headers = {
+                "User-Agent": "MagicInventoryApp/1.0"
+            }
+
+            response = requests.get(
+                url,
+                headers=headers
+            )
 
             if response.status_code != 200:
                 break
@@ -421,7 +428,14 @@ def get_collection_progress(
     # Consultar total de cartas del set en Scryfall
     url = f"https://api.scryfall.com/cards/search?q=e:{collection.set_code}"
 
-    response = requests.get(url)
+    headers = {
+        "User-Agent": "MagicInventoryApp/1.0"
+    }
+
+    response = requests.get(
+        url,
+        headers=headers
+    )
 
     if response.status_code != 200:
         raise HTTPException(

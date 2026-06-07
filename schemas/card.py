@@ -28,6 +28,8 @@ class CardResponse(BaseModel):
     
     usd_price: float | None = None
 
+    usd_foil_price: float | None = None
+
     class Config:
         from_attributes = True
 

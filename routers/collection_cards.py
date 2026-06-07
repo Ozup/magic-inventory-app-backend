@@ -229,7 +229,14 @@ def add_card_to_collection_by_name(
     # Buscar carta en Scryfall
     url = f"https://api.scryfall.com/cards/named?fuzzy={card_name}"
 
-    response = requests.get(url)
+    headers = {
+        "User-Agent": "MagicInventoryApp/1.0"
+    }
+
+    response = requests.get(
+        url,
+        headers=headers
+    )
 
     if response.status_code != 200:
         raise HTTPException(
@@ -411,8 +418,16 @@ def add_card_to_collection_by_scryfall_id(
             detail="Collection not found"
         )
 
+    url = f"https://api.scryfall.com/cards/{scryfall_id}"
+    
+
+    headers = {
+        "User-Agent": "MagicInventoryApp/1.0"
+    }
+
     response = requests.get(
-        f"https://api.scryfall.com/cards/{scryfall_id}"
+        url,
+        headers=headers
     )
 
     if response.status_code != 200:
