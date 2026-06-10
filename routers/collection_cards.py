@@ -397,6 +397,61 @@ def update_card_quantity(
 
     return collection_card
 
+@router.patch(
+    "/{collection_id}/commander/{card_id}"
+)
+def set_commander(
+    collection_id: int,
+    card_id: int,
+    db: Session = Depends(get_db)
+):
+
+    collection = db.query(Collection).filter(
+        Collection.id == collection_id
+    ).first()
+
+    if not collection:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Collection not found"
+        )
+
+    db.query(CollectionCard).filter(
+        CollectionCard.collection_id
+        == collection_id
+    ).update(
+        {
+            CollectionCard.is_commander: False
+        }
+    )
+
+    commander_card = db.query(
+        CollectionCard
+    ).filter(
+        CollectionCard.collection_id
+        == collection_id,
+
+        CollectionCard.card_id
+        == card_id
+    ).first()
+
+    if not commander_card:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Card not found in deck"
+        )
+
+    commander_card.is_commander = True
+
+    db.commit()
+
+    return {
+        "message": "Commander updated"
+    }
+
+
 
 @router.post(
     "/{collection_id}/cards/by-scryfall-id/{scryfall_id}"
